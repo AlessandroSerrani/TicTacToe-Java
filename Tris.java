@@ -19,12 +19,15 @@ import java.awt.GridLayout;
 public class Tris {
 
 	private JFrame frmTris;
-	private String winner = null;
-	private Boolean cpu_play;
-	private int turno = 0;
 	private JFrame frmGame;
 	private JPanel pnl_game;
-	// bottoni
+	
+	// variables for the manage of the wining, turning system, CPU play
+	private String winner = null;
+	private Boolean cpu_play;
+	private int turn = 0;
+
+	// declaration of the 9 button used for the tris game
 	JButton btn1 = new JButton();
 	JButton btn2 = new JButton();
 	JButton btn3 = new JButton();
@@ -72,6 +75,12 @@ public class Tris {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		/*
+		 * fist the declaration and the initialization 
+		 * of all the button panel and frame for the game UI
+		 * also the set of action for the nine button used in the UI
+		 * calling each time the function handleMove() who will take care of all the controls 
+		 */
 		frmGame = new JFrame();
 		frmGame.setTitle("TRIS");
 		frmGame.setBounds(100, 100, 300, 300);
@@ -82,7 +91,6 @@ public class Tris {
 		frmGame.getContentPane().add(pnl_game, BorderLayout.CENTER);
 		pnl_game.setBackground(Color.BLACK);
 		
-		JOptionPane jOptionPane = new JOptionPane();
 		
 		btn1.setBackground(Color.WHITE);
 		btn1.setFont(new Font("Tahoma", Font.BOLD, 60));
@@ -206,6 +214,10 @@ public class Tris {
 		});
 		pnl_game.add(btn9);
 		
+		/*
+		 * there it is the declaration of the object in the main menu
+		 * and the initialization of them
+		 */
 		
 		frmTris = new JFrame();
 		frmTris.setTitle("TRIS");
@@ -228,9 +240,12 @@ public class Tris {
 		btnVsCpu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//PLAYER VS CPU
-				
-				
-				
+				// here it change the settings for the new game
+				frmGame.setVisible(true);
+				frmTris.setVisible(false);
+				reset_tris();
+				cpu_play = true;
+				turn = 0;
 			}
 		});
 		btnVsCpu.setBounds(20, 53, 244, 47);
@@ -240,29 +255,36 @@ public class Tris {
 		btnVsPlayer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//PLAYER VS PLAYER
+				// here it change the settings for the new game
 				
 				frmGame.setVisible(true);
 				frmTris.setVisible(false);
-				//frmTris.setVisible(false);
 				reset_tris();
 			}
 		});
 		btnVsPlayer.setBounds(20, 110, 244, 47);
 		panel_1.add(btnVsPlayer);
 	}
+	/*
+	 * function that will rest the board after every new game
+	 */
 	private void reset_tris() {
-		btn1.setText(null);
-		btn2.setText(null);
-		btn3.setText(null);
-		btn4.setText(null);
-		btn5.setText(null);
-		btn6.setText(null);
-		btn7.setText(null);
-		btn8.setText(null);
-		btn9.setText(null);
+		btn1.setText("");
+		btn2.setText("");
+		btn3.setText("");
+		btn4.setText("");
+		btn5.setText("");
+		btn6.setText("");
+		btn7.setText("");
+		btn8.setText("");
+		btn9.setText("");
 		frmGame.setVisible(true);
 		
 	}
+	
+	/*
+	 * function that will take care of the winning condition 
+	 */
 	
 	private String checkWinner() {
     String[][] board = {
@@ -271,7 +293,7 @@ public class Tris {
         { btn7.getText(), btn8.getText(), btn9.getText() }
     };
 
-    // normalizza: evita null e spazi
+    // normalize all the char in the matrix for the next steps 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             if (board[i][j] == null || board[i][j].isBlank()) {
@@ -280,7 +302,7 @@ public class Tris {
         }
     }
 
-    // Controllo righe
+    // Row control
     for (int i = 0; i < 3; i++) {
         if (!board[i][0].isEmpty() &&
             board[i][0].equals(board[i][1]) &&
@@ -289,7 +311,7 @@ public class Tris {
         }
     }
 
-    // Controllo colonne
+    // Column control
     for (int i = 0; i < 3; i++) {
         if (!board[0][i].isEmpty() &&
             board[0][i].equals(board[1][i]) &&
@@ -298,7 +320,7 @@ public class Tris {
         }
     }
 
-    // Controllo diagonali
+    // diagonals control
     if (!board[0][0].isEmpty() &&
         board[0][0].equals(board[1][1]) &&
         board[1][1].equals(board[2][2])) {
@@ -311,7 +333,7 @@ public class Tris {
         return board[0][2];
     }
 
-    // Controllo se la griglia è piena (Patta)
+    // check if the board if full (Draw)
     boolean full = true;
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
@@ -323,34 +345,174 @@ public class Tris {
     }
 
     if (full) {
-        return "Patta";
+        return "Draw";
     }
 
     return null;
 }
+	
+	private void handleCPU() {
+	    /*
+	     * The CPU always plays as 'O'
+	     */
+
+	    // Check if the CPU needs to play
+	    if (!cpu_play) return;
+
+	    
+	    // Build the current board state
+	    String[][] board = {
+	        { btn1.getText(), btn2.getText(), btn3.getText() },
+	        { btn4.getText(), btn5.getText(), btn6.getText() },
+	        { btn7.getText(), btn8.getText(), btn9.getText() }
+	    };
+	    
+	    // Normalize board to avoid any invalid characters
+	    for (int i = 0; i < 3; i++) {
+	        for (int j = 0; j < 3; j++) {
+	            if (!(board[i][j].equals("X") || board[i][j].equals("O"))) {
+	                board[i][j] = "";
+	            }
+	        }
+	    }
+	    
+
+	    // Initialize the points board
+	    int[][] pointsBoard = {
+	        {1, 0, 1},
+	        {0, 1, 0},
+	        {1, 0, 1}
+	    };
+	    
+	    
+	    // Helper function to convert "X"/"O" to int (1 for X, 2 for O, 0 empty)
+	    int[][] numBoard = new int[3][3];
+	    for (int i = 0; i < 3; i++) {
+	        for (int j = 0; j < 3; j++) {
+	            if (board[i][j].equals("X")) numBoard[i][j] = 1;
+	            else if (board[i][j].equals("O")) numBoard[i][j] = 2;
+	            else numBoard[i][j] = 0;
+	        }
+	    }
+	    
+	    
+	    // Calculate points for rows and columns
+	    for (int i = 0; i < 3; i++) {
+	        for (int j = 0; j < 3; j++) {
+	            if (numBoard[i][j] == 0) {
+	                // Column check
+	                if (i == 0 && numBoard[1][j] == numBoard[2][j] && numBoard[1][j] == 0) {
+	                    pointsBoard[i][j] += (numBoard[1][j] == 2 ? 4 : 3);
+	                } else if (i == 1 && numBoard[0][j] == numBoard[2][j] && numBoard[0][j] == 0) {
+	                    pointsBoard[i][j] += (numBoard[0][j] == 2 ? 4 : 3);
+	                } else if (i == 2 && numBoard[0][j] == numBoard[1][j] && numBoard[0][j] == 0) {
+	                    pointsBoard[i][j] += (numBoard[0][j] == 2 ? 4 : 3);
+	                }
+
+	                // Row check
+	                if (j == 0 && numBoard[i][1] == numBoard[i][2] && numBoard[i][1] == 0) {
+	                    pointsBoard[i][j] += (numBoard[i][1] == 2 ? 4 : 3);
+	                } else if (j == 1 && numBoard[i][0] == numBoard[i][2] && numBoard[i][0] == 0) {
+	                    pointsBoard[i][j] += (numBoard[i][0] == 2 ? 4 : 3);
+	                } else if (j == 2 && numBoard[i][0] == numBoard[i][1] && numBoard[i][0] == 0) {
+	                    pointsBoard[i][j] += (numBoard[i][0] == 2 ? 4 : 3);
+	                }
+	            } else {
+	                pointsBoard[i][j] = 0; // cannot play here
+	            }
+	        }
+	    }
+	    
+	    
+	    // Diagonal checks (\ and /)
+	    for (int i = 0; i < 3; i++) {
+	        for (int j = 0; j < 3; j++) {
+	            if (numBoard[i][j] == 0) {
+	                // \ diagonal
+	                if (i == j) {
+	                    if (i == 0 && numBoard[1][1] == numBoard[2][2] && numBoard[1][1] == 0) pointsBoard[i][j] += 4;
+	                    if (i == 1 && numBoard[0][0] == numBoard[2][2] && numBoard[0][0] == 0) pointsBoard[i][j] += 4;
+	                    if (i == 2 && numBoard[0][0] == numBoard[1][1] && numBoard[0][0] == 0) pointsBoard[i][j] += 4;
+	                }
+
+	                // / diagonal
+	                if (i + j == 2) {
+	                    if (i == 0 && numBoard[1][1] == numBoard[2][0] && numBoard[1][1] == 0) pointsBoard[i][j] += 4;
+	                    if (i == 1 && numBoard[0][2] == numBoard[2][0] && numBoard[0][2] == 0) pointsBoard[i][j] += 4;
+	                    if (i == 2 && numBoard[0][2] == numBoard[1][1] && numBoard[0][2] == 0) pointsBoard[i][j] += 4;
+	                }
+	            }
+	        }
+	    }
+	    
+	    for(int i = 0 ; i < 3 ; i ++) {
+	    	for(int j = 0 ; j < 3; j++) {
+	    		if(numBoard[i][j] == 0) {
+	    			pointsBoard[i][j] += 1;
+	    		}
+	    	}
+	    }
+	    
+	    // Find the move with the highest points
+	    int maxI = 0, maxJ = 0;
+	    for (int i = 0; i < 3; i++) {
+	        for (int j = 0; j < 3; j++) {
+	            if (pointsBoard[i][j] > pointsBoard[maxI][maxJ]) {
+	                maxI = i;
+	                maxJ = j;
+	            }
+	        }
+	    }
+	    
+	    
+	    // Play the move on the GUI
+	    JButton[][] buttons = {
+	        { btn1, btn2, btn3 },
+	        { btn4, btn5, btn6 },
+	        { btn7, btn8, btn9 }
+	    };
+	    buttons[maxI][maxJ].setText("O");
+	    // Next turn, so it's the Player turn here
+	    turn++;
+	    turn = turn%2;
+	    // After CPU move, check for winner
+	    winner = checkWinner();
+	    if (winner != null) {
+	        ShowResult();
+	    }
+	}
+
 
 	
 	private void handleMove(JButton button) {
 	    if (button.getText() == null || button.getText().isBlank()) {
-	        button.setText(turno == 0 ? "O" : "X");
-	        turno = (turno + 1) % 2;
+	        button.setText(turn == 0 ? "X" : "O");
+	        turn = (turn + 1) % 2;
+	        
+	        
 	        winner = checkWinner();
 	        if (winner != null) {
-	            mostraRisultato();
+	            ShowResult();
+	            return;
 	        }
+	        
+	        // need to be implemented the function where the CPU plays
+	        
+	        handleCPU();
+	        
 	    }
 	}
 	
-	private void mostraRisultato() {
+	private void ShowResult() {
 	    switch (winner) {
 	        case "X":
-	        	JOptionPane.showMessageDialog(null, "Ha vinto la X!");
+	        	JOptionPane.showMessageDialog(null, "X Is the Winner");
 	            break;
 	        case "O":
-	            JOptionPane.showMessageDialog(null, "Ha vinto la O!");
+	            JOptionPane.showMessageDialog(null, "O Is the Winner");
 	            break;
-	        case "Patta":
-	            JOptionPane.showMessageDialog(null, "Partita patta!");
+	        case "Draw":
+	            JOptionPane.showMessageDialog(null, "it's a Draw");
 	            break;
 	    }
 	    frmGame.dispose();
